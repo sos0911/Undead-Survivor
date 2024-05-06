@@ -3,9 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Reposition : MonoBehaviour
 {
+    public  int        EnemyRepositionScale = 20;
+    private Collider2D Collider;
+
+    void Awake()
+    {
+        Collider = GetComponent< Collider2D >();
+    }
+    
     private void OnTriggerExit2D( Collider2D Other )
     {
         if ( !Other.CompareTag( "Area" ) ) return;
@@ -16,8 +25,10 @@ public class Reposition : MonoBehaviour
         float diffX = Mathf.Abs( playerPos.x - tileMapPos.x );
         float diffY = Mathf.Abs( playerPos.y - tileMapPos.y );
 
-        float dirX = GameManager.Instance.GlobalPlayer.InputVec.x < 0 ? -1 : 1;
-        float dirY = GameManager.Instance.GlobalPlayer.InputVec.y < 0 ? -1 : 1;
+        Vector3 playerDir = GameManager.Instance.GlobalPlayer.InputVec;
+
+        float dirX = playerDir.x < 0 ? -1 : 1;
+        float dirY = playerDir.y < 0 ? -1 : 1;
 
         switch ( transform.tag )
         {
@@ -34,8 +45,12 @@ public class Reposition : MonoBehaviour
                 else if ( diffX < diffY ) transform.Translate( Vector3.up * dirY * tileMapSizeY * 2 );
 
                 break;
+            case "Enemy":
+                if ( Collider.enabled )
+                {
+                    transform.Translate( playerDir * EnemyRepositionScale + new Vector3( Random.Range( -3.0f, 3.0f ), Random.Range( -3.0f, 3.0f ), 0.0f ) );
+                }
+                break;
         }
-
-        // throw new NotImplementedException();
     }
 }
