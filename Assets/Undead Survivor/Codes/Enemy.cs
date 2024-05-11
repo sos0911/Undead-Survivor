@@ -7,22 +7,23 @@ using UnityEngine.PlayerLoop;
 
 public class Enemy : MonoBehaviour
 {
-    public float       Speed;
-    public Rigidbody2D ChaseTarget;
+    public  float       Speed;
+    private Rigidbody2D ChaseTarget;
 
     private bool           IsLive = true;
     private Rigidbody2D    Rigid;
     private SpriteRenderer Spriter;
 
-    void Awake()
+    private void Awake()
     {
         Rigid   = GetComponent< Rigidbody2D    >();
         Spriter = GetComponent< SpriteRenderer >();
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        if ( !IsLive ) return;
+        if ( !IsLive      ) return;
+        if ( !ChaseTarget ) return;
         
         Vector2 dirVec = ChaseTarget.position - Rigid.position;
         Vector2 nextVec = dirVec.normalized * ( Speed * Time.fixedDeltaTime );
@@ -32,8 +33,15 @@ public class Enemy : MonoBehaviour
         Rigid.velocity = Vector2.zero;
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
+        if ( !ChaseTarget ) return;
+        
         Spriter.flipX = ChaseTarget.position.x < Rigid.position.x;
+    }
+
+    private void OnEnable()
+    {
+        ChaseTarget = GameManager.Instance.GlobalPlayer.GetComponent< Rigidbody2D >();
     }
 }
